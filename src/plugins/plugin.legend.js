@@ -13,7 +13,7 @@ defaults._set('global', {
 		weight: 1000,
 
 		// a callback that will handle
-		onClick: function(e, legendItem) {
+		onClick: function (e, legendItem) {
 			var index = legendItem.datasetIndex;
 			var ci = this.chart;
 			var meta = ci.getDatasetMeta(index);
@@ -41,9 +41,9 @@ defaults._set('global', {
 			// lineDashOffset :
 			// lineJoin :
 			// lineWidth :
-			generateLabels: function(chart) {
+			generateLabels: function (chart) {
 				var data = chart.data;
-				return helpers.isArray(data.datasets) ? data.datasets.map(function(dataset, i) {
+				return helpers.isArray(data.datasets) ? data.datasets.map(function (dataset, i) {
 					return {
 						text: dataset.label,
 						fillStyle: (!helpers.isArray(dataset.backgroundColor) ? dataset.backgroundColor : dataset.backgroundColor[0]),
@@ -64,7 +64,7 @@ defaults._set('global', {
 		}
 	},
 
-	legendCallback: function(chart) {
+	legendCallback: function (chart) {
 		var text = [];
 		text.push('<ul class="' + chart.id + '-legend">');
 		for (var i = 0; i < chart.data.datasets.length; i++) {
@@ -79,7 +79,7 @@ defaults._set('global', {
 	}
 });
 
-module.exports = function(Chart) {
+module.exports = function (Chart) {
 
 	var layout = Chart.layoutService;
 	var noop = helpers.noop;
@@ -98,7 +98,7 @@ module.exports = function(Chart) {
 
 	Chart.Legend = Element.extend({
 
-		initialize: function(config) {
+		initialize: function (config) {
 			helpers.extend(this, config);
 
 			// Contains hit boxes for each dataset (in dataset order)
@@ -113,7 +113,7 @@ module.exports = function(Chart) {
 		// Any function can be extended by the legend type
 
 		beforeUpdate: noop,
-		update: function(maxWidth, maxHeight, margins) {
+		update: function (maxWidth, maxHeight, margins) {
 			var me = this;
 
 			// Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
@@ -147,7 +147,7 @@ module.exports = function(Chart) {
 		//
 
 		beforeSetDimensions: noop,
-		setDimensions: function() {
+		setDimensions: function () {
 			var me = this;
 			// Set the unconstrained dimension before label rotation
 			if (me.isHorizontal()) {
@@ -155,6 +155,7 @@ module.exports = function(Chart) {
 				me.width = me.maxWidth;
 				me.left = 0;
 				me.right = me.width;
+
 			} else {
 				me.height = me.maxHeight;
 
@@ -180,13 +181,13 @@ module.exports = function(Chart) {
 		//
 
 		beforeBuildLabels: noop,
-		buildLabels: function() {
+		buildLabels: function () {
 			var me = this;
 			var labelOpts = me.options.labels || {};
 			var legendItems = helpers.callback(labelOpts.generateLabels, [me.chart], me) || [];
 
 			if (labelOpts.filter) {
-				legendItems = legendItems.filter(function(item) {
+				legendItems = legendItems.filter(function (item) {
 					return labelOpts.filter(item, me.chart.data);
 				});
 			}
@@ -202,7 +203,7 @@ module.exports = function(Chart) {
 		//
 
 		beforeFit: noop,
-		fit: function() {
+		fit: function () {
 			var me = this;
 			var opts = me.options;
 			var labelOpts = opts.labels;
@@ -245,7 +246,7 @@ module.exports = function(Chart) {
 					ctx.textAlign = 'left';
 					ctx.textBaseline = 'top';
 
-					helpers.each(me.legendItems, function(legendItem, i) {
+					helpers.each(me.legendItems, function (legendItem, i) {
 						var boxWidth = getBoxWidth(labelOpts, fontSize);
 						var width = boxWidth + (fontSize / 2) + ctx.measureText(legendItem.text).width;
 
@@ -275,7 +276,7 @@ module.exports = function(Chart) {
 					var currentColHeight = 0;
 					var itemHeight = fontSize + vPadding;
 
-					helpers.each(me.legendItems, function(legendItem, i) {
+					helpers.each(me.legendItems, function (legendItem, i) {
 						var boxWidth = getBoxWidth(labelOpts, fontSize);
 						var itemWidth = boxWidth + (fontSize / 2) + ctx.measureText(legendItem.text).width;
 
@@ -313,12 +314,12 @@ module.exports = function(Chart) {
 		afterFit: noop,
 
 		// Shared Methods
-		isHorizontal: function() {
+		isHorizontal: function () {
 			return this.options.position === 'top' || this.options.position === 'bottom';
 		},
 
 		// Actually draw the legend on the canvas
-		draw: function() {
+		draw: function () {
 			var me = this;
 			var opts = me.options;
 			var labelOpts = opts.labels;
@@ -349,7 +350,7 @@ module.exports = function(Chart) {
 				var hitboxes = me.legendHitBoxes;
 
 				// current position
-				var drawLegendBox = function(x, y, legendItem) {
+				var drawLegendBox = function (x, y, legendItem) {
 					if (isNaN(boxWidth) || boxWidth <= 0) {
 						return;
 					}
@@ -390,7 +391,7 @@ module.exports = function(Chart) {
 
 					ctx.restore();
 				};
-				var fillText = function(x, y, legendItem, textWidth) {
+				var fillText = function (x, y, legendItem, textWidth) {
 					var halfFontSize = fontSize / 2;
 					var xLeft = boxWidth + halfFontSize + x;
 					var yMiddle = y + halfFontSize;
@@ -410,8 +411,15 @@ module.exports = function(Chart) {
 				// Horizontal
 				var isHorizontal = me.isHorizontal();
 				if (isHorizontal) {
+					var alignLine = ((legendWidth - lineWidths[0]) / 2);
+
+					if (opts.align && opts.align == "left")
+						alignLine = ((legendWidth - lineWidths[0]));
+					else if (opts.align && opts.align == "right")
+						alignLine = labelOpts.padding;
+
 					cursor = {
-						x: me.left + ((legendWidth - lineWidths[0]) / 2),
+						x: me.left + alignLine,
 						y: me.top + labelOpts.padding,
 						line: 0
 					};
@@ -424,7 +432,7 @@ module.exports = function(Chart) {
 				}
 
 				var itemHeight = fontSize + labelOpts.padding;
-				helpers.each(me.legendItems, function(legendItem, i) {
+				helpers.each(me.legendItems, function (legendItem, i) {
 					var textWidth = ctx.measureText(legendItem.text).width;
 					var width = boxWidth + (fontSize / 2) + textWidth;
 					var x = cursor.x;
@@ -466,7 +474,7 @@ module.exports = function(Chart) {
 		 * @param {IEvent} event - The event to handle
 		 * @return {Boolean} true if a change occured
 		 */
-		handleEvent: function(e) {
+		handleEvent: function (e) {
 			var me = this;
 			var opts = me.options;
 			var type = e.type === 'mouseup' ? 'click' : e.type;
@@ -530,7 +538,7 @@ module.exports = function(Chart) {
 	return {
 		id: 'legend',
 
-		beforeInit: function(chart) {
+		beforeInit: function (chart) {
 			var legendOpts = chart.options.legend;
 
 			if (legendOpts) {
@@ -538,7 +546,7 @@ module.exports = function(Chart) {
 			}
 		},
 
-		beforeUpdate: function(chart) {
+		beforeUpdate: function (chart) {
 			var legendOpts = chart.options.legend;
 			var legend = chart.legend;
 
@@ -557,7 +565,7 @@ module.exports = function(Chart) {
 			}
 		},
 
-		afterEvent: function(chart, e) {
+		afterEvent: function (chart, e) {
 			var legend = chart.legend;
 			if (legend) {
 				legend.handleEvent(e);

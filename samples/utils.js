@@ -3,16 +3,16 @@
 'use strict';
 
 window.chartColors = {
-	red: 'rgb(255, 99, 132)',
+	red: '#ff9b7c',
 	orange: 'rgb(255, 159, 64)',
 	yellow: 'rgb(255, 205, 86)',
-	green: 'rgb(75, 192, 192)',
+	green: '#68ceaa',
 	blue: 'rgb(54, 162, 235)',
 	purple: 'rgb(153, 102, 255)',
 	grey: 'rgb(201, 203, 207)'
 };
 
-(function(global) {
+(function (global) {
 	var Months = [
 		'January',
 		'February',
@@ -43,11 +43,11 @@ window.chartColors = {
 	var Samples = global.Samples || (global.Samples = {});
 	Samples.utils = {
 		// Adapted from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
-		srand: function(seed) {
+		srand: function (seed) {
 			this._seed = seed;
 		},
 
-		rand: function(min, max) {
+		rand: function (min, max) {
 			var seed = this._seed;
 			min = min === undefined ? 0 : min;
 			max = max === undefined ? 1 : max;
@@ -55,7 +55,7 @@ window.chartColors = {
 			return min + (this._seed / 233280) * (max - min);
 		},
 
-		numbers: function(config) {
+		numbers: function (config) {
 			var cfg = config || {};
 			var min = cfg.min || 0;
 			var max = cfg.max || 1;
@@ -79,7 +79,7 @@ window.chartColors = {
 			return data;
 		},
 
-		labels: function(config) {
+		labels: function (config) {
 			var cfg = config || {};
 			var min = cfg.min || 0;
 			var max = cfg.max || 100;
@@ -98,7 +98,7 @@ window.chartColors = {
 			return values;
 		},
 
-		months: function(config) {
+		months: function (config) {
 			var cfg = config || {};
 			var count = cfg.count || 12;
 			var section = cfg.section;
@@ -113,11 +113,11 @@ window.chartColors = {
 			return values;
 		},
 
-		color: function(index) {
+		color: function (index) {
 			return COLORS[index % COLORS.length];
 		},
 
-		transparentize: function(color, opacity) {
+		transparentize: function (color, opacity) {
 			var alpha = opacity === undefined ? 0.5 : 1 - opacity;
 			return Chart.helpers.color(color).alpha(alpha).rgbString();
 		},
@@ -128,9 +128,13 @@ window.chartColors = {
 	Samples.utils.srand(Date.now());
 
 	// DEPRECATED
-	window.randomScalingFactor = function() {
+	window.randomScalingFactor = function () {
 		return Math.round(Samples.utils.rand(-100, 100));
 	};
+
+	window.randomPositiveScalingFactor = function () {
+		return Math.round(Samples.utils.rand(0, 100));
+	}
 
 }(this));
 

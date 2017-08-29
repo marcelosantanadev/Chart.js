@@ -1,4 +1,4 @@
-(function(global) {
+(function (global) {
 
 	var Samples = global.Samples || (global.Samples = {});
 
@@ -10,6 +10,9 @@
 		}, {
 			title: 'Horizontal',
 			path: 'charts/bar/horizontal.html'
+		}, {
+			title: 'Horizontal Custom',
+			path: 'charts/bar/horizontal-custom.html'
 		}, {
 			title: 'Multi axis',
 			path: 'charts/bar/multi-axis.html'
