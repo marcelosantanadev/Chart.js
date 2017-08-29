@@ -9,7 +9,8 @@ defaults._set('global', {
 			backgroundColor: defaults.global.defaultColor,
 			borderColor: defaults.global.defaultColor,
 			borderSkipped: 'bottom',
-			borderWidth: 0
+			borderWidth: 0,
+			borderRadius: 0
 		}
 	}
 });
@@ -53,11 +54,13 @@ function getBarBounds(bar) {
 }
 
 module.exports = Element.extend({
-	draw: function() {
+	draw: function () {
 		var ctx = this._chart.ctx;
 		var vm = this._view;
-		var left, right, top, bottom, signX, signY, borderSkipped;
+
+		var left, right, top, bottom, signX, signY, borderSkipped, radius;
 		var borderWidth = vm.borderWidth;
+		var cornerRadius = vm.borderRadius;
 
 		if (!vm.horizontal) {
 			// bar
@@ -135,7 +138,36 @@ module.exports = Element.extend({
 
 		for (var i = 1; i < 4; i++) {
 			corner = cornerAt(i);
-			ctx.lineTo(corner[0], corner[1]);
+			var nextCornerId = i + 1;
+			if (nextCornerId === 4) {
+				nextCornerId = 0
+			}
+
+			var nextCorner = cornerAt(nextCornerId);
+
+			var width = corners[2][0] - corners[1][0];
+			var height = corners[0][1] - corners[1][1];
+			var x = corners[1][0];
+			var y = corners[1][1];
+			radius = cornerRadius;
+
+			// Fix radius being too large
+			if (radius > height / 2) {
+				radius = height / 2;
+			}
+			if (radius > width / 2) {
+				radius = width / 2;
+			}
+
+			ctx.moveTo(x + radius, y);
+			ctx.lineTo(x + width - radius, y);
+			ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+			ctx.lineTo(x + width, y + height - radius);
+			ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+			ctx.lineTo(x + radius, y + height);
+			ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+			ctx.lineTo(x, y + radius);
+			ctx.quadraticCurveTo(x, y, x + radius, y);
 		}
 
 		ctx.fill();
@@ -144,12 +176,12 @@ module.exports = Element.extend({
 		}
 	},
 
-	height: function() {
+	height: function () {
 		var vm = this._view;
 		return vm.base - vm.y;
 	},
 
-	inRange: function(mouseX, mouseY) {
+	inRange: function (mouseX, mouseY) {
 		var inRange = false;
 
 		if (this._view) {
@@ -160,7 +192,7 @@ module.exports = Element.extend({
 		return inRange;
 	},
 
-	inLabelRange: function(mouseX, mouseY) {
+	inLabelRange: function (mouseX, mouseY) {
 		var me = this;
 		if (!me._view) {
 			return false;
@@ -178,17 +210,17 @@ module.exports = Element.extend({
 		return inRange;
 	},
 
-	inXRange: function(mouseX) {
+	inXRange: function (mouseX) {
 		var bounds = getBarBounds(this);
 		return mouseX >= bounds.left && mouseX <= bounds.right;
 	},
 
-	inYRange: function(mouseY) {
+	inYRange: function (mouseY) {
 		var bounds = getBarBounds(this);
 		return mouseY >= bounds.top && mouseY <= bounds.bottom;
 	},
 
-	getCenterPoint: function() {
+	getCenterPoint: function () {
 		var vm = this._view;
 		var x, y;
 		if (isVertical(this)) {
@@ -202,12 +234,12 @@ module.exports = Element.extend({
 		return {x: x, y: y};
 	},
 
-	getArea: function() {
+	getArea: function () {
 		var vm = this._view;
 		return vm.width * Math.abs(vm.y - vm.base);
 	},
 
-	tooltipPosition: function() {
+	tooltipPosition: function () {
 		var vm = this._view;
 		return {
 			x: vm.x,

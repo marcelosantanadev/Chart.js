@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>Horizontal Bar Chart</title>
+	<script src="../../../dist/Chart.bundle.js"></script>
+	<script src="../../utils.js"></script>
+	<style>
+		canvas {
+			-moz-user-select: none;
+			-webkit-user-select: none;
+			-ms-user-select: none;
+		}
+	</style>
+</head>
+
+<body>
+<div id="container" style="width: 100%;">
+	<canvas id="canvas"></canvas>
+</div>
+<button id="randomizeData">Randomize Data</button>
+<button id="addDataset">Add Dataset</button>
+<button id="removeDataset">Remove Dataset</button>
+<button id="addData">Add Data</button>
+<button id="removeData">Remove Data</button>
+<script>
+	var QUESTIONS = ["Question 1", "Question 2", "Question 3", "Question 4"];
+	var color = Chart.helpers.color;
+	var horizontalBarChartData = {
+		labels: ["Question 1", "Question 2", "Question 3", "Question 4"],
+		datasets: [{
+			label: 'Satisfeitos',
+			backgroundColor: color(window.chartColors.green).rgbString(),
+			borderColor: 'rgba(255,255,255,0)',
+			borderWidth: 0,
+			data: [
+				randomPositiveScalingFactor(),
+				randomPositiveScalingFactor(),
+				randomPositiveScalingFactor(),
+				randomPositiveScalingFactor()
+			]
+		},
+			{
+				label: 'Não satisfeitos',
+				backgroundColor: color(window.chartColors.red).rgbString(),
+				borderColor: 'rgba(255,255,255,0)',
+				borderWidth: 0,
+				data: [
+					randomPositiveScalingFactor(),
+					randomPositiveScalingFactor(),
+					randomPositiveScalingFactor(),
+					randomPositiveScalingFactor()
+				]
+			}]
+	};
+
+	window.onload = function () {
+		var ctx = document.getElementById("canvas").getContext("2d");
+		window.myHorizontalBar = new Chart(ctx, {
+			type: 'horizontalBar',
+			data: horizontalBarChartData,
+			options: {
+				elements: {
+					rectangle: {
+						borderSkipped: 'left',
+						borderRadius: 10
+					}
+				},
+				scales: {
+					yAxes: [{
+						ticks: {
+							beginAtZero: true
+						}
+					}],
+					xAxes: [{
+						ticks: {
+							min: 0,
+							max: 100,
+							callback: function (value) {
+								return value + "%"
+							}
+						}
+					}]
+				},
+				responsive: true,
+				legend: {
+					position: 'top',
+					align: 'left'
+				}
+			}
+		});
+	};
+
+	var colorNames = Object.keys(window.chartColors);
+	document.getElementById('randomizeData').addEventListener('click', function () {
+		var zero = Math.random() < 0.2 ? true : false;
+		horizontalBarChartData.datasets.forEach(function (dataset) {
+			dataset.data = dataset.data.map(function () {
+				return zero ? 0.0 : randomPositiveScalingFactor();
+			});
+
+		});
+		window.myHorizontalBar.update();
+	});
+	document.getElementById('addDataset').addEventListener('click', function () {
+		var colorName = colorNames[horizontalBarChartData.datasets.length % colorNames.length];
+		;
+		var dsColor = window.chartColors[colorName];
+		var newDataset = {
+			label: 'Dataset ' + horizontalBarChartData.datasets.length,
+			backgroundColor: color(dsColor).alpha(0.5).rgbString(),
+			borderColor: dsColor,
+			data: []
+		};
+
+		for (var index = 0; index < horizontalBarChartData.labels.length; ++index) {
+			newDataset.data.push(randomPositiveScalingFactor());
+		}
+
+		horizontalBarChartData.datasets.push(newDataset);
+		window.myHorizontalBar.update();
+	});
+	document.getElementById('addData').addEventListener('click', function () {
+		if (horizontalBarChartData.datasets.length > 0) {
+			var month = QUESTIONS[horizontalBarChartData.labels.length % QUESTIONS.length];
+			horizontalBarChartData.labels.push(month);
+
+			for (var index = 0; index < horizontalBarChartData.datasets.length; ++index) {
+				horizontalBarChartData.datasets[index].data.push(randomPositiveScalingFactor());
+			}
+
+			window.myHorizontalBar.update();
+		}
+	});
+	document.getElementById('removeDataset').addEventListener('click', function () {
+		horizontalBarChartData.datasets.splice(0, 1);
+		window.myHorizontalBar.update();
+	});
+	document.getElementById('removeData').addEventListener('click', function () {
+		horizontalBarChartData.labels.splice(-1, 1); // remove the label first
+
+		horizontalBarChartData.datasets.forEach(function (dataset, datasetIndex) {
+			dataset.data.pop();
+		});
+
+		window.myHorizontalBar.update();
+	});
+</script>
+</body>
+
+</html>
